@@ -134,17 +134,10 @@ const MapContainer = ({ mapStyle }) => {
       </div>
 
       {/* Highbar внизу карты */}
-      <div style={{
-        position: 'absolute',
-        bottom: 0,
-        width: '100%',
-        height: '25%',  // Задаем высоту Highbar
-        backgroundColor: 'rgba(255, 255, 255, 0.6)',
-        zIndex: 100,
-      }}>
-        <Highbar map={mapRef.current} routeCoordinates={routeCoordinates} />
-      </div>
-    </div>
+     
+  <Highbar map={mapRef.current} routeCoordinates={routeCoordinates} />
+</div>
+    
   );
 };
 

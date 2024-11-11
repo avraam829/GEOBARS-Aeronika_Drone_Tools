@@ -64,7 +64,7 @@ const Highbar = ({ map, routeCoordinates }) => {
             // Даем немного времени для рендеринга данных
             setTimeout(() => {
                 chartInstance.current.update();
-            }, 0);  // Асинхронное обновление данных графика
+            }, 1);  // Асинхронное обновление данных графика
         } else {
             console.error('Chart instance is not initialized');
         }
@@ -97,12 +97,16 @@ const Highbar = ({ map, routeCoordinates }) => {
                 options: {
                     plugins: {
                         legend: {
-                            display: true
+                            display: true,
+                            labels: {
+                            color: 'white'
+                            }
                         },
                         title: {
                             display: true,
                             align: 'start',
-                            text: 'Elevation (m)'
+                            text: 'Elevation (m)',
+                            color: 'white'
                         }
                     },
                     maintainAspectRatio: false,
@@ -111,12 +115,18 @@ const Highbar = ({ map, routeCoordinates }) => {
                         x: {
                             grid: {
                                 display: false
+                            },
+                            ticks: {
+                            color: 'white'
                             }
                         },
                         y: {
                             min: 0,
                             grid: {
-                                display: false
+                                display: true
+                            },
+                            ticks: {
+                            color: 'white'
                             }
                         }
                     },
@@ -153,20 +163,25 @@ const Highbar = ({ map, routeCoordinates }) => {
 
 const styles = {
     chartContainer: {
-        height: '90%',
-        width: '100%',
         position: 'absolute',
-        bottom: 0,
-        left: 0,
+        bottom: '8px', // Небольшой отступ снизу
+        left: '50%',
+        transform: 'translateX(-18%)', // Центрируем по горизонтали
+        width: '60%', // Ширина окна
+        height: '25%',  // Высота окна
+        backgroundColor: 'rgba(50, 50, 50, 0.7)', // Полупрозрачный серо-черный фон
+        borderRadius: '20px', // Округлые углы
+        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)', // Тень
+        border: '2px solid rgba(255, 255, 255, 0.5)', // Легкая оконтовка
         zIndex: 10,
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-        textAlign: 'center'
+        textAlign: 'center',
     },
     chartInnerContainer: {
         position: 'relative',
+        bottom: '10px',
         margin: 'auto',
-        height: '100%',
-        width: '100vw'
+        height: '100%', // 100% от родительского контейнера
+        width: '100%' // 100% от родительского контейнера
     }
 };
 
