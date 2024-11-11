@@ -1,0 +1,83 @@
+import React, { useEffect, useRef } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+
+const Mapbox3DWithSpheres = () => {
+  const mapContainerRef = useRef();
+  const mapRef = useRef();
+
+  useEffect(() => {
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYXJ0ZW1hdnIiLCJhIjoiY20yazhrOTlqMGJkNTJqcjF0MWZ2NWl0byJ9.TEG7Jvuty9-clulfpnEQUw';
+
+    if (mapRef.current) return;
+
+    mapRef.current = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      zoom: 14,
+      center: [39.091278, 44.621762],
+      pitch: 60,
+      bearing: 41,
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+    });
+
+    mapRef.current.on('style.load', () => {
+      mapRef.current.addSource('mapbox-dem', {
+        type: 'raster-dem',
+        url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+        tileSize: 512,
+        maxzoom: 14,
+      });
+      mapRef.current.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+      // Adding 3D spheres near the specified coordinates
+      const sphereCoordinates = [
+        [39.0915, 44.6218], // Coordinate for the first sphere
+        [39.092, 44.622]    // Coordinate for the second sphere
+      ];
+
+      sphereCoordinates.forEach((coords, index) => {
+        const sphereSourceId = `sphere-${index}`;
+        
+        mapRef.current.addSource(sphereSourceId, {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                geometry: {
+                  type: 'Polygon',
+                  coordinates: [
+                    [
+                      [coords[0] - 0.0001, coords[1] - 0.0001],
+                      [coords[0] + 0.0001, coords[1] - 0.0001],
+                      [coords[0] + 0.0001, coords[1] + 0.0001],
+                      [coords[0] - 0.0001, coords[1] + 0.0001],
+                      [coords[0] - 0.0001, coords[1] - 0.0001],
+                    ],
+                  ],
+                },
+              },
+            ],
+          },
+        });
+
+        mapRef.current.addLayer({
+          id: `${sphereSourceId}-layer`,
+          type: 'fill-extrusion',
+          source: sphereSourceId,
+          paint: {
+            'fill-extrusion-color': '#00ffcc',
+            'fill-extrusion-height': 110,  // Sphere height at 100 meters + small radius
+            'fill-extrusion-base': 100,    // Start height of 100 meters
+            'fill-extrusion-opacity': 0.7,
+          },
+        });
+      });
+    });
+  }, []);
+
+  return <div ref={mapContainerRef} style={{ width: '100%', height: '100vh' }} />;
+};
+
+export default Mapbox3DWithSpheres;

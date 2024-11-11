@@ -1,0 +1,6 @@
+если на 6000м точка ставить на 30000ед
+то 1метр это 5ед
+10 = 50
+100 = 500
+44.621762, 39.091278
+https://api.mapbox.com/v4/mapbox.terrain-rgb/{zoom}/{44.621762}/{39.091278}{@2x}.pngraw?access_token=pk.eyJ1IjoiYXJ0ZW1hdnIiLCJhIjoiY20yazhrOTlqMGJkNTJqcjF0MWZ2NWl0byJ9.TEG7Jvuty9-clulfpnEQUw
