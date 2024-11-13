@@ -4,6 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import SphereManager from './SphereManager';
 import HeightInput from './HeightInput';
 import Highbar from './Highbar'; // Импортируем Highbar
+import ParrotModel from './ParrotModel';
 
 const MapContainer = ({ mapStyle }) => {
   const mapContainerRef = useRef(null);
@@ -88,9 +89,24 @@ const MapContainer = ({ mapStyle }) => {
       };
     });
 
+    // Обновляем размеры карты при изменении размеров контейнера
+    let resizeTimeout;
+    const resizeObserver = new ResizeObserver(() => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+    
+      // Откладываем вызов resize на 300 мс (время анимации панели)
+      resizeTimeout = setTimeout(() => {
+        mapRef.current.resize();
+      }, 300);
+    });
+    resizeObserver.observe(mapContainerRef.current);
+
     return () => {
       mapRef.current.off('click', onClick);
       mapRef.current.off('mousemove');
+      resizeObserver.disconnect(); // Останавливаем наблюдатель за изменениями
     };
   }, [mapStyle]);
 
@@ -134,10 +150,9 @@ const MapContainer = ({ mapStyle }) => {
       </div>
 
       {/* Highbar внизу карты */}
-     
-  <Highbar map={mapRef.current} routeCoordinates={routeCoordinates} />
-</div>
-    
+      <Highbar map={mapRef.current} routeCoordinates={routeCoordinates} />
+      <ParrotModel map={mapRef.current} />
+    </div>
   );
 };
 

@@ -1,26 +1,27 @@
 import { Threebox } from 'threebox-plugin';
 import MapContainer from './MapContainer';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+const exaggerationn = 3;
 const SphereManager = {
   spheres: [], // Массив для хранения сфер
+  line: null, // Переменная для хранения линии
 
   initialize(map) {
     if (window.tb) {
         window.tb = new Threebox(map, map.getCanvas().getContext('webgl'), { defaultLights: true });
-        console.log("Three app sucscess")
-      }
+        console.log("Three app success")
+    }
     if (!window.tb) {
       window.tb = new Threebox(map, map.getCanvas().getContext('webgl'), { defaultLights: true });
-      console.log("Three app sucscess")
+      console.log("Three app success")
     }
     if (!map.getLayer('mapbox-dem')) {
       map.addLayer({
         id: 'mapbox-dem',
         type: 'custom',
         renderingMode: '3d',
-        onAdd: function () {
-          // Инициализация на старте
-        },
+        onAdd: function () {},
         render: function () {
           window.tb.update(); // Обновление 3D объектов
         },
@@ -29,45 +30,70 @@ const SphereManager = {
   },
 
   async addSphere(map, coords, height, exaggeration) {
-    //this.initialize(map);
-
     const [lon, lat] = coords;
-    const terrainHeight = await map.queryTerrainElevation(coords)/exaggeration || 0;
-    console.log(terrainHeight/exaggeration)
-    
-    // Создаем сферу с дополнительными параметрами
-    const sphere = window.tb.sphere({ 
-      color: 'red', 
-      material: 'MeshToonMaterial', 
-      radius: 0.5, 
-    }).setCoords([lon, lat, height + exaggeration*terrainHeight]);
-    const groundAlt = height + exaggeration*terrainHeight
-    // Добавляем сферу в Threebox
-    window.tb.add(sphere);
-    const line_segment = tb.line({
-        geometry: [
-            [44.6074297789038, 39.0839108787684, 10000],
-            [44.6138729820611, 39.0943404011886, 12000],
-        ],
-        color: '#dd0000',
-        width: 4,
-        opacity: 1
-    });
-    window.tb.add(line_segment)
+    const terrainHeight = await map.queryTerrainElevation(coords) / exaggeration || 0;
+    const groundAlt = height + exaggeration * terrainHeight;
+    const sphereRadius = 0.5;
+    // Создаем сферу
+    const sphere = window.tb.sphere({
+      color: 'red',
+      material: 'MeshToonMaterial',
+      radius: sphereRadius,
+    }).setCoords([lon, lat, groundAlt]);
+    sphere.translateZ(-sphereRadius);
+    sphere.translateY(+sphereRadius);
+    sphere.translateX(+sphereRadius);
 
-    // Добавляем в массив для дальнейшего управления
+    const scale = 300;
+    const options = {
+        obj: '/assets/Radio_tower.glb',  // Абсолютный путь в public
+        type: 'gltf',
+        scale: { x: scale, y: scale, z: scale },
+        units: 'meters',
+        rotation: { x: 90, y: -90, z: 0 },
+        anchor: 'center'
+    };
+    window.tb.loadObj(options, (model) => {
+      const modelInstance = model.setCoords([lon, lat, groundAlt]);
+      modelInstance.setRotation({ x: 0, y: 0, z: 241 });
+      window.tb.add(modelInstance);
+      console.log("Model added successfully");
+    /*
+    const scale = 300;
+    const options = {
+      obj: './assets/Radio_tower.glb',
+      type: 'gltf',
+      scale: { x: scale, y: scale, z: scale },
+      units: 'meters',
+      rotation: { x: 90, y: -90, z: 0 },
+      anchor: 'center'
+    };
+    window.tb.loadObj(options, (model) => {
+      let soldier = model.setCoords([44.621762, 39.091278, exaggeration * terrainHeight]);
+
+      model.setRotation({ x: 0, y: 0, z: 241 });
+      window.tb.add(soldier);
+      console.log("тут были")
+    });
+    */
+
+
+
+    window.tb.add(sphere);
     this.spheres.push(sphere);
 
-    // Логирование для отладки
+    // Обновляем линию, соединяющую сферы
+    this.updateLine();
+
     console.log("Sphere added:", sphere);
     console.log("All spheres:", this.spheres);
 
-    // Попробуем сохранить точку на сервер
+    // Сохранение точки на сервер
     try {
       const response = await fetch('http://127.0.0.1:5000/api/save_point', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lng: lon, lat: lat, alt: groundAlt, routeId: 1, numPoint: 1 }),
+        body: JSON.stringify({ lng: lon, lat: lat, alt: groundAlt/exaggerationn, routeId: 1, numPoint: 1 }),
       });
 
       if (!response.ok) {
@@ -87,10 +113,34 @@ const SphereManager = {
     }
   },
 
+  updateLine() {
+    // Удаляем старую линию, если она существует
+    if (this.line) {
+      window.tb.remove(this.line);
+    }
+
+    // Если в массиве сфер меньше двух точек, линию строить не нужно
+    if (this.spheres.length < 2) return;
+
+    // Создаем массив координат из всех сфер
+    const lineCoordinates = this.spheres.map(sphere => sphere.coordinates);
+
+    // Создаем новую линию, соединяющую все сферы
+    this.line = window.tb.line({
+      geometry: lineCoordinates,
+      color: '#dd0000',
+      width: 2,
+      opacity: 0.5,
+    });
+
+    // Добавляем линию на карту
+    window.tb.add(this.line);
+  },
+
   reinitialize(map) {
-    // Переинициализация Threebox и добавление всех сфер
     this.initialize(map);
     this.spheres.forEach(sphere => window.tb.add(sphere));
+    this.updateLine();
     console.log("Reinitialized all spheres:", this.spheres);
   }
 };

@@ -1,6 +1,8 @@
 import { Threebox } from 'threebox-plugin';
 import MapContainer from './MapContainer';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+const exaggerationn = 3;
 const SphereManager = {
   spheres: [], // Массив для хранения сфер
   line: null, // Переменная для хранения линии
@@ -41,6 +43,39 @@ const SphereManager = {
     sphere.translateZ(-sphereRadius);
     sphere.translateY(+sphereRadius);
     sphere.translateX(+sphereRadius);
+
+    const scale = 30;
+    const options = {
+        obj: '/Radio_tower.glb',  
+        type: 'gltf',
+        scale: { x: scale, y: scale, z: scale },
+        units: 'meters',
+        rotation: { x: 90, y: -90, z: 0 },
+        anchor: 'center'
+    };
+    window.tb.loadObj(options, (model) => {
+      const modelInstance = model.setCoords([lon, lat, groundAlt]);
+      modelInstance.setRotation({ x: 0, y: 0, z: 241 });
+      window.tb.add(modelInstance);
+      console.log("Model added successfully");
+    });
+    const options2 = {
+        obj: '/drone_samolet.glb',  
+        type: 'gltf',
+        scale: { x: scale, y: scale, z: scale },
+        units: 'meters',
+        rotation: { x: 90, y: -90, z: 0 },
+        anchor: 'center'
+    };
+    window.tb.loadObj(options2, (model) => {
+      const modelInstance = model.setCoords([lon, lat, groundAlt+1000]);
+      modelInstance.setRotation({ x: 0, y: 0, z: 241 });
+      window.tb.add(modelInstance);
+      console.log("Model added successfully");
+    });
+
+
+
     window.tb.add(sphere);
     this.spheres.push(sphere);
 
@@ -55,7 +90,7 @@ const SphereManager = {
       const response = await fetch('http://127.0.0.1:5000/api/save_point', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lng: lon, lat: lat, alt: groundAlt, routeId: 1, numPoint: 1 }),
+        body: JSON.stringify({ lng: lon, lat: lat, alt: groundAlt/exaggerationn, routeId: 1, numPoint: 1 }),
       });
 
       if (!response.ok) {
