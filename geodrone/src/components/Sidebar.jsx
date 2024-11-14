@@ -2,7 +2,7 @@
 import React from 'react';
 import '../styles/Sidebar.css';
 
-const Sidebar = ({ handleStyleChange }) => {
+const Sidebar = ({ handleStyleChange, onStartFlight }) => {
   const mapStyles = [
     { label: 'Спутник', value: 'mapbox://styles/mapbox/satellite-streets-v12' },
     { label: 'Схема', value: 'mapbox://styles/mapbox/streets-v12' },
@@ -23,6 +23,9 @@ const Sidebar = ({ handleStyleChange }) => {
             </option>
           ))}
         </select>
+        <button onClick={onStartFlight} className="start-flight-button">
+          Начать полет
+        </button>
       </div>
     </div>
   );

@@ -4,7 +4,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import SphereManager from './SphereManager';
 import HeightInput from './HeightInput';
 import Highbar from './Highbar'; // Импортируем Highbar
-import ParrotModel from './ParrotModel';
 
 const MapContainer = ({ mapStyle }) => {
   const mapContainerRef = useRef(null);
@@ -151,7 +150,6 @@ const MapContainer = ({ mapStyle }) => {
 
       {/* Highbar внизу карты */}
       <Highbar map={mapRef.current} routeCoordinates={routeCoordinates} />
-      <ParrotModel map={mapRef.current} />
     </div>
   );
 };

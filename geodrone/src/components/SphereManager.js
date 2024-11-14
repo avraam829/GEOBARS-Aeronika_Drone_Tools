@@ -1,6 +1,7 @@
 import { Threebox } from 'threebox-plugin';
 import MapContainer from './MapContainer';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import PlaneManager from './PlaneManager';
 
 const exaggerationn = 3;
 const SphereManager = {
@@ -10,6 +11,7 @@ const SphereManager = {
   initialize(map) {
     if (window.tb) {
         window.tb = new Threebox(map, map.getCanvas().getContext('webgl'), { defaultLights: true });
+        
         console.log("Three app success")
     }
     if (!window.tb) {
@@ -17,6 +19,7 @@ const SphereManager = {
       console.log("Three app success")
     }
     if (!map.getLayer('mapbox-dem')) {
+      
       map.addLayer({
         id: 'mapbox-dem',
         type: 'custom',
@@ -43,7 +46,7 @@ const SphereManager = {
     sphere.translateZ(-sphereRadius);
     sphere.translateY(+sphereRadius);
     sphere.translateX(+sphereRadius);
-
+    /*
     const scale = 30;
     const options = {
         obj: '/Radio_tower.glb',  
@@ -73,7 +76,7 @@ const SphereManager = {
       window.tb.add(modelInstance);
       console.log("Model added successfully");
     });
-
+    */
 
 
     window.tb.add(sphere);
