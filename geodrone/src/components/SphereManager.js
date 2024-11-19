@@ -2,6 +2,7 @@ import { Threebox } from 'threebox-plugin';
 import MapContainer from './MapContainer';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import PlaneManager from './PlaneManager';
+import TowerManager from './TowerManager';
 
 const exaggerationn = 3;
 const SphereManager = {
@@ -142,6 +143,8 @@ const SphereManager = {
     this.spheres.forEach(sphere => window.tb.add(sphere));
     this.updateLine();
     console.log("Reinitialized all spheres:", this.spheres);
+    TowerManager.towers.forEach(towers => window.tb.add(towers));
+    TowerManager.trid.forEach(trid => window.tb.add(trid));
   }
 };
 

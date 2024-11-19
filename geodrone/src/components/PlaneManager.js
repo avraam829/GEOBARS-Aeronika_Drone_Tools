@@ -12,7 +12,7 @@ const PlaneManager = {
 
     const firstSphere = SphereManager.spheres[0];
     const [lon, lat, alt] = firstSphere.coordinates;
-    const scale = 50;
+    const scale = 100;
 
     const options = {
       obj: '/drone_samolet.glb',
@@ -43,7 +43,7 @@ const PlaneManager = {
 
       const startCoords = SphereManager.spheres[currentIndex].coordinates;
       const endCoords = SphereManager.spheres[currentIndex + 1].coordinates;
-      const duration = 2000; // milliseconds
+      const duration = 3000; // milliseconds
       let startTime = null;
 
       const animateStep = (timestamp) => {

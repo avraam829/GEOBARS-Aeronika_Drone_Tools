@@ -2,20 +2,51 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import SphereManager from './SphereManager';
+import TowerManager from './TowerManager';
 import HeightInput from './HeightInput';
+import HeightInputTower from './HeightInputTower';
 import Highbar from './Highbar'; // Импортируем Highbar
+import Reinitialize from './reinitialize';
 
 const MapContainer = ({ mapStyle }) => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const [showHeightInput, setShowHeightInput] = useState(false);
+  const [showHeightInputTower, setShowHeightInputTower] = useState(false);
   const [sphereCoords, setSphereCoords] = useState(null);
-  const [sphereHeight, setSphereHeight] = useState(100);
+  const [towerCoords, setTowerCoords] = useState(null);
+  const [sphereHeight, setSphereHeight] = useState(200);
+  const [towerHeight, setTowerHeight] = useState(50);
   const exaggeration = 3;
   const [routeCoordinates, setRouteCoordinates] = useState([]); // для высотного отображения
+  const [isAddingSpheres, setIsAddingSpheres] = useState(false);
+  const [isAddingTowers, setIsAddingTowers] = useState(false);
+  
+  const [map, setMap] = useState(null);
 
+
+  const isAddingSpheresRef = useRef(isAddingSpheres);
+  const isAddingTowersRef = useRef(isAddingTowers); // Ref to track the current state of isAddingSpheres
+  useEffect(() => {
+    isAddingSpheresRef.current = isAddingSpheres;
+    isAddingTowersRef.current = isAddingTowers;
+  }, [isAddingSpheres],[isAddingTowers]);
+   // Ref to track the current state of isAddingSpheres
+  const toggleAddSpheres = () => {
+    if (isAddingTowers) {
+      setIsAddingTowers(false);  // Отключаем режим башен
+    }
+    setIsAddingSpheres(prev => !prev);  // Переключаем режим точек
+  };
+
+  const toggleAddTowers = () => {
+    if (isAddingSpheres) {
+      setIsAddingSpheres(false);  // Отключаем режим точек
+    }
+    setIsAddingTowers(prev => !prev);  // Переключаем режим башен
+  };
   const cameraState = useRef({
-    center: [44.621762, 39.091278],
+    center: [92.84690, 55.93961],
     zoom: 20,
     pitch: 60,
     bearing: 41,
@@ -51,16 +82,39 @@ const MapContainer = ({ mapStyle }) => {
         source: 'mapbox-dem',
         exaggeration: exaggeration,
       });
-
+      //TowerManager.reinitialize(mapRef.current);
       SphereManager.reinitialize(mapRef.current);
+      //Reinitialize.initialize(mapRef.current);
+      
     });
 
     mapRef.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
+    
     const onClick = (e) => {
-      setSphereCoords([e.lngLat.lng, e.lngLat.lat]);
-      setShowHeightInput(true);
+      const actions = {
+        addSphere: () => {
+          setSphereCoords([e.lngLat.lng, e.lngLat.lat]);
+          setShowHeightInput(true);j
+        },
+        addTower: () => {
+          console.log("Вышки");
+          setTowerCoords([e.lngLat.lng, e.lngLat.lat]);
+          setShowHeightInputTower(true);
+        },
+      };
+    
+      // Определяем, какой action выполнить
+      const currentAction = isAddingSpheresRef.current ? 'addSphere' :
+                            isAddingTowersRef.current ? 'addTower' :
+                            null;
+    
+      // Выполняем action, если он определен
+      if (currentAction && actions[currentAction]) {
+        actions[currentAction]();
+      }
     };
+    
 
     mapRef.current.on('click', onClick);
 
@@ -121,9 +175,23 @@ const MapContainer = ({ mapStyle }) => {
       setSphereHeight(100);
     }
   };
+  const addTower = async () => {
+    if (towerCoords) {
+      await TowerManager.addTower(mapRef.current, towerCoords, towerHeight, exaggeration);
+
+      // Добавляем координаты новой сферы в маршрут
+      //setRouteCoordinates(prev => [...prev, [...towerCoords, towerHeight]]);
+      
+      setShowHeightInputTower(false);
+      setTowerCoords(null);
+      setTowerHeight(50);
+    }
+  };
 
   return (
+    
     <div ref={mapContainerRef} style={{ width: '100%', height: '100vh', position: 'relative' }}>
+      
       {showHeightInput && (
         <HeightInput 
           height={sphereHeight} 
@@ -131,7 +199,47 @@ const MapContainer = ({ mapStyle }) => {
           onAdd={addSphere} 
         />
       )}
-
+      {showHeightInputTower && (
+        <HeightInputTower 
+          signalPower={towerHeight} 
+          setHeightTower={setTowerHeight} 
+          onAdd={addTower} 
+        />
+      )}
+      <button 
+  onClick={() => toggleAddSpheres(prev => !prev)}
+  style={{
+    position: 'absolute',
+    top: '200px',
+    left: '10px',
+    zIndex: 1000,
+    padding: '10px 20px',
+    backgroundColor: isAddingSpheres ? 'red' : 'green',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  }}
+>
+  {isAddingSpheres ? 'Режим добавления точек вкл' : 'Режим добавления точек выкл'}
+</button>
+<button 
+  onClick={() => toggleAddTowers(prev => !prev)}
+  style={{
+    position: 'absolute',
+    top: '240px',
+    left: '10px',
+    zIndex: 1000,
+    padding: '10px 20px',
+    backgroundColor: isAddingTowers ? 'red' : 'green',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  }}
+>
+  {isAddingTowers ? 'Режим добавления вышек вкл' : 'Режим добавления вышек выкл'}
+</button>
       {/* Блок для отображения координат и высоты */}
       <div style={{
         position: 'absolute', 
@@ -143,11 +251,12 @@ const MapContainer = ({ mapStyle }) => {
         fontSize: '14px',
         zIndex: 100
       }}>
+        
         <div>Longitude: {coordinates.lng}</div>
         <div>Latitude: {coordinates.lat}</div>
         <div>Elevation: {coordinates.height} m</div>
       </div>
-
+      
       {/* Highbar внизу карты */}
       <Highbar map={mapRef.current} routeCoordinates={routeCoordinates} />
     </div>

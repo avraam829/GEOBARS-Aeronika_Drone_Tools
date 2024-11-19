@@ -15,6 +15,14 @@ class Point(db.Model):
     lat = db.Column(db.Float)
     alt = db.Column(db.Float)
 
+class Tower(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tower_id = db.Column(db.Integer)
+    num_tower = db.Column(db.Integer)
+    lng = db.Column(db.Float)
+    lat = db.Column(db.Float)
+    power = db.Column(db.Integer)
+
 @app.route('/api/save_point', methods=['POST'])
 def save_point():
     try:
@@ -25,6 +33,23 @@ def save_point():
             lng=data['lng'],
             lat=data['lat'],
             alt=data['alt']
+        )
+        db.session.add(point)
+        db.session.commit()
+        return jsonify({"status": "success"}), 201
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+@app.route('/api/save_tower', methods=['POST'])
+def save_tower():
+    try:
+        data = request.json
+        point = Tower(
+            tower_id=data['TowerId'],
+            num_tower=data['numTower'],
+            lng=data['lng'],
+            lat=data['lat'],
+            power=data['power']
         )
         db.session.add(point)
         db.session.commit()
