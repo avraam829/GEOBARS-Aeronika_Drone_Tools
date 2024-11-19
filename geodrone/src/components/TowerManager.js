@@ -69,12 +69,12 @@ const TowerManager = {
       modelInstance.setRotation({ x: 0, y: 0, z: 241 });
       window.tb.add(modelInstance);
       this.trid.push(modelInstance);
+      
       console.log("Model added successfully");
       
     });
     //this.createWaveAnimation(map, coords, groundAlt, signalPower, scale,sizer);
     
-
 
     window.tb.add(sphere);
     this.towers.push(sphere);
@@ -116,65 +116,6 @@ const TowerManager = {
     }
   },
 
-/*
-  createWaveAnimation(map, coords, groundAlt, signalPower, scale, sizer) {
-    const [lon, lat] = coords;
-    const waveColor = 'rgba(0, 0, 255, 0.1)'; // Полупрозрачный синий цвет
-    const waveSpeed = 1; // Скорость расширения (изменяйте по необходимости)
-    const waveInterval = 1000; // Минимальный интервал между волнами (мс)
-    
-    let isAnimating = false; // Флаг для отслеживания текущей анимации
-  
-    const createWave = () => {
-      if (isAnimating) return; // Если анимация уже идёт, не создаём новую волну
-      isAnimating = true;
-  
-      const waveSphere = window.tb.sphere({
-        color: waveColor,
-        material: 'MeshStandardMaterial',
-        radius: 1, // Начальный радиус волны
-        wireframe: true, // Включение сетки
-      }).setCoords([lon, lat, groundAlt + 90 * sizer]); // Центр волны над вышкой
-  
-      waveSphere.scale.set(1, 1, 1); // Начальная масштабировка
-      window.tb.add(waveSphere);
-  
-      // Анимация расширения сферы
-      const maxRadius = signalPower / exaggerationn;
-      const duration = (maxRadius / waveSpeed) * 1000; // Продолжительность анимации в мс
-      const startTime = performance.now();
-  
-      const animate = () => {
-        const currentTime = performance.now();
-        const elapsed = currentTime - startTime;
-  
-        if (elapsed > duration) {
-          window.tb.remove(waveSphere); // Удаляем волну после завершения
-          isAnimating = false; // Разрешаем создание новой волны
-          return;
-        }
-  
-        // Пропорциональное масштабирование
-        const scale = (elapsed / duration) * maxRadius;
-        waveSphere.scale.set(scale, scale, scale);
-  
-        // Обновляем Threebox для отрисовки изменений
-        window.tb.update();
-        requestAnimationFrame(animate);
-      };
-  
-      animate();
-    };
-  
-    // Периодическое создание волн
-    const interval = setInterval(() => {
-      createWave();
-    }, waveInterval);
-  
-    // Очищаем интервал, если карта обновляется или удаляется
-    map.on('remove', () => clearInterval(interval));
-  }
-    */
   reinitialize(map) {
     this.initialize(map);
     this.towers.forEach(towers => window.tb.add(towers));

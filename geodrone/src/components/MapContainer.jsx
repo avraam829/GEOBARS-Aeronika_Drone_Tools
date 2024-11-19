@@ -6,7 +6,7 @@ import TowerManager from './TowerManager';
 import HeightInput from './HeightInput';
 import HeightInputTower from './HeightInputTower';
 import Highbar from './Highbar'; // Импортируем Highbar
-import Reinitialize from './reinitialize';
+
 
 const MapContainer = ({ mapStyle }) => {
   const mapContainerRef = useRef(null);
@@ -95,7 +95,7 @@ const MapContainer = ({ mapStyle }) => {
       const actions = {
         addSphere: () => {
           setSphereCoords([e.lngLat.lng, e.lngLat.lat]);
-          setShowHeightInput(true);j
+          setShowHeightInput(true);
         },
         addTower: () => {
           console.log("Вышки");
@@ -256,7 +256,7 @@ const MapContainer = ({ mapStyle }) => {
         <div>Latitude: {coordinates.lat}</div>
         <div>Elevation: {coordinates.height} m</div>
       </div>
-      
+
       {/* Highbar внизу карты */}
       <Highbar map={mapRef.current} routeCoordinates={routeCoordinates} />
     </div>
