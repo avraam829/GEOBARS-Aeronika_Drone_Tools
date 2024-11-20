@@ -1,5 +1,5 @@
-// PlaneManager.js
 import SphereManager from './SphereManager';
+import Rangetotower from './Rangetotower';
 
 const PlaneManager = {
   planeModel: null,
@@ -32,18 +32,18 @@ const PlaneManager = {
 
   animatePlane() {
     if (!this.planeModel || SphereManager.spheres.length < 2) return;
-
+    Rangetotower.startTracking(); // Начать отслеживание расстояний
     let currentIndex = 0;
 
     const moveToNextPoint = () => {
       if (currentIndex >= SphereManager.spheres.length - 1) {
-        this.removePlane(); // Remove the plane model after reaching the last point
+        this.removePlane(); // Удалить модель самолета после достижения последней точки
         return;
       }
 
       const startCoords = SphereManager.spheres[currentIndex].coordinates;
       const endCoords = SphereManager.spheres[currentIndex + 1].coordinates;
-      const duration = 3000; // milliseconds
+      const duration = 10000; // milliseconds
       let startTime = null;
 
       const animateStep = (timestamp) => {
@@ -53,6 +53,9 @@ const PlaneManager = {
         const lon = startCoords[0] + (endCoords[0] - startCoords[0]) * progress;
         const lat = startCoords[1] + (endCoords[1] - startCoords[1]) * progress;
         const alt = startCoords[2] + (endCoords[2] - startCoords[2]) * progress; // Above ground
+
+        // Передаем текущую высоту в Rangetotower
+        Rangetotower.updatePlaneAlt(alt, lon, lat);
 
         this.planeModel.setCoords([lon, lat, alt]);
 
@@ -80,6 +83,7 @@ const PlaneManager = {
     if (this.planeModel) {
       window.tb.remove(this.planeModel);
       this.planeModel = null;
+      Rangetotower.stopTracking(); // Остановить отслеживание расстояний
       console.log("Plane model removed after completing the flight.");
     }
   }

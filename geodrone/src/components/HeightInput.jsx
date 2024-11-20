@@ -14,7 +14,7 @@ const HeightInput = ({ height, setHeight, onAdd }) => (
         style={{ marginLeft: '5px', width: '60px' }} 
       />
     </label>
-    <button onClick={onAdd} style={{ marginLeft: '10px' }}>Добавить сферу</button>
+    <button onClick={onAdd} style={{ marginLeft: '10px' }}>Добавить точку</button>
   </div>
 );
 

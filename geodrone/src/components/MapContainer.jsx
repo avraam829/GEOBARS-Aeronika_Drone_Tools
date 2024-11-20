@@ -6,6 +6,7 @@ import TowerManager from './TowerManager';
 import HeightInput from './HeightInput';
 import HeightInputTower from './HeightInputTower';
 import Highbar from './Highbar'; // Импортируем Highbar
+import Rangetotower from './Rangetotower';
 
 
 const MapContainer = ({ mapStyle }) => {
@@ -21,7 +22,7 @@ const MapContainer = ({ mapStyle }) => {
   const [routeCoordinates, setRouteCoordinates] = useState([]); // для высотного отображения
   const [isAddingSpheres, setIsAddingSpheres] = useState(false);
   const [isAddingTowers, setIsAddingTowers] = useState(false);
-  
+  const [bestTowerData, setBestTowerData] = useState(null)
   const [map, setMap] = useState(null);
 
 
@@ -47,7 +48,7 @@ const MapContainer = ({ mapStyle }) => {
   };
   const cameraState = useRef({
     center: [92.84690, 55.93961],
-    zoom: 20,
+    zoom: 10,
     pitch: 60,
     bearing: 41,
   });
@@ -187,11 +188,51 @@ const MapContainer = ({ mapStyle }) => {
       setTowerHeight(50);
     }
   };
+  useEffect(() => {
+    // Обработчик обновления данных о лучшей вышке
+    Rangetotower.onBestTowerUpdate = (data) => {
+      if (data) {
+        setBestTowerData(data); // Обновляем данные о лучшей вышке
+      } else {
+        setBestTowerData(null); // Сбрасываем данные, если сигнал пропал
+      }
+    };
+  
+    return () => {
+      Rangetotower.onBestTowerUpdate = null; // Удаляем callback при размонтировании
+    };
+  }, []);
 
   return (
     
     <div ref={mapContainerRef} style={{ width: '100%', height: '100vh', position: 'relative' }}>
-      
+      {/* Информация о лучшей вышке */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '200px',
+          width: '200px',
+          padding: '10px',
+          borderRadius: '8px',
+          backgroundColor: bestTowerData ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)',
+          color: 'white',
+          textAlign: 'center',
+          boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
+          fontSize: '14px',
+          zIndex: 1000,
+        }}
+      >
+        {bestTowerData ? (
+          <>
+            <p><strong>Вышка №:</strong> {bestTowerData.towerId}</p>
+            <p><strong>Сигнал:</strong> {bestTowerData.signal}</p>
+            <p><strong>Шум:</strong> {bestTowerData.noise}</p>
+          </>
+        ) : (
+          <p>Нет сигнала</p>
+        )}
+      </div>
       {showHeightInput && (
         <HeightInput 
           height={sphereHeight} 
@@ -251,15 +292,20 @@ const MapContainer = ({ mapStyle }) => {
         fontSize: '14px',
         zIndex: 100
       }}>
+      
         
         <div>Longitude: {coordinates.lng}</div>
         <div>Latitude: {coordinates.lat}</div>
         <div>Elevation: {coordinates.height} m</div>
       </div>
+      
+      
+      
 
       {/* Highbar внизу карты */}
       <Highbar map={mapRef.current} routeCoordinates={routeCoordinates} />
     </div>
+    
   );
 };
 

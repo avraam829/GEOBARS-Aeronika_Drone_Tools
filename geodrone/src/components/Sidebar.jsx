@@ -4,8 +4,8 @@ import '../styles/Sidebar.css';
 
 const Sidebar = ({ handleStyleChange, onStartFlight }) => {
   const mapStyles = [
-    { label: 'Спутник', value: 'mapbox://styles/mapbox/satellite-streets-v12' },
     { label: 'Схема', value: 'mapbox://styles/mapbox/streets-v12' },
+    { label: 'Спутник', value: 'mapbox://styles/mapbox/satellite-streets-v12' },
     { label: '3D рельеф', value: 'mapbox://styles/mapbox/outdoors-v12' }
   ];
 

@@ -136,6 +136,21 @@ const SphereManager = {
 
     // Добавляем линию на карту
     window.tb.add(this.line);
+
+    let length = 0;
+    for (let i = 1; i < lineCoordinates.length; i++) {
+        const [x1, y1, z1] = lineCoordinates[i - 1];
+        const [x2, y2, z2] = lineCoordinates[i];
+        const segmentLength = Math.sqrt(
+            Math.pow(x2 - x1, 2) +
+            Math.pow(y2 - y1, 2) +
+            Math.pow(z2 - z1, 2)
+        );
+        length += segmentLength;
+      }
+
+      // Вывод длины линии в консоль
+      console.log(`Line length: ${length.toFixed(2)} units`);
   },
 
   reinitialize(map) {

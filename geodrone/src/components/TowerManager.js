@@ -2,11 +2,12 @@ import { Threebox } from 'threebox-plugin';
 import MapContainer from './MapContainer';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import PlaneManager from './PlaneManager';
-
+import Rangetotower from './Rangetotower';
 const exaggerationn = 3;
 const TowerManager = {
   towers: [],
   trid: [], // Массив для хранения сфер
+  checker: [],
 
   initialize(map) {
     if (window.tb) {
@@ -36,8 +37,12 @@ const TowerManager = {
     const [lon, lat] = coords;
     const terrainHeight = await map.queryTerrainElevation(coords) / exaggeration || 0;
     const groundAlt = exaggeration * terrainHeight;
+    
     const sphereRadius = signalPower;
     const sizer = 4 // чтоб не париться
+    const fortowersf = groundAlt + 90 * sizer;
+    Rangetotower.radiocheck(lon,lat,signalPower, fortowersf);
+   
     // Создаем сферу
     const sphere = window.tb.sphere({
         color: 'blue', // Синий цвет
@@ -55,6 +60,7 @@ const TowerManager = {
       
       // Добавляем сферу в Threebox
       window.tb.add(sphere);
+      
     const scale = 3;
     const options = {
         obj: '/Radio_tower.glb',  
@@ -76,7 +82,7 @@ const TowerManager = {
     //this.createWaveAnimation(map, coords, groundAlt, signalPower, scale,sizer);
     
 
-    window.tb.add(sphere);
+    
     this.towers.push(sphere);
     
 
