@@ -4,11 +4,13 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import PlaneManager from './PlaneManager';
 import TowerManager from './TowerManager';
 
+
 const exaggerationn = 3;
 const SphereManager = {
   spheres: [], // Массив для хранения сфер
   line: null, // Переменная для хранения линии
 
+  
   initialize(map) {
     if (window.tb) {
         window.tb = new Threebox(map, map.getCanvas().getContext('webgl'), { defaultLights: true });
@@ -160,6 +162,24 @@ const SphereManager = {
     console.log("Reinitialized all spheres:", this.spheres);
     TowerManager.towers.forEach(towers => window.tb.add(towers));
     TowerManager.trid.forEach(trid => window.tb.add(trid));
+  },
+  
+  deleteRoute() {
+    // Очищаем массивы
+    this.spheres = [];
+    TowerManager.towers = [];
+    TowerManager.trid = [];
+  
+    // Удаляем объекты с карты
+    if (this.line) {
+      window.tb.remove(this.line);
+      this.line = null;
+    }
+    
+    console.log("Маршрут и объекты удалены");
+  
+    // Вызываем reinitialize для обновления карты
+    this.reinitialize(window.tb.map);
   }
 };
 

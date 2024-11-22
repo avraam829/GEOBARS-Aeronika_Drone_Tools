@@ -7,6 +7,7 @@ import HeightInput from './HeightInput';
 import HeightInputTower from './HeightInputTower';
 import Highbar from './Highbar'; // Импортируем Highbar
 import Rangetotower from './Rangetotower';
+import PolygonManager from './PolygonManager';
 
 
 const MapContainer = ({ mapStyle }) => {
@@ -24,6 +25,11 @@ const MapContainer = ({ mapStyle }) => {
   const [isAddingTowers, setIsAddingTowers] = useState(false);
   const [bestTowerData, setBestTowerData] = useState(null)
   const [map, setMap] = useState(null);
+  const [isAddingArea, setIsAddingArea] = useState(false); // Новый режим
+  const isAddingAreaRef = useRef(isAddingArea);
+  const [showPolygonManager, setShowPolygonManager] = useState(false);
+  
+
 
 
   const isAddingSpheresRef = useRef(isAddingSpheres);
@@ -31,24 +37,35 @@ const MapContainer = ({ mapStyle }) => {
   useEffect(() => {
     isAddingSpheresRef.current = isAddingSpheres;
     isAddingTowersRef.current = isAddingTowers;
-  }, [isAddingSpheres],[isAddingTowers]);
+    isAddingAreaRef.current = isAddingArea;
+  }, [isAddingSpheres, isAddingTowers, isAddingArea]);
    // Ref to track the current state of isAddingSpheres
-  const toggleAddSpheres = () => {
-    if (isAddingTowers) {
-      setIsAddingTowers(false);  // Отключаем режим башен
+   const toggleAddSpheres = () => {
+    if (isAddingTowers || isAddingArea) {
+      setIsAddingTowers(false);
+      setIsAddingArea(false);
     }
-    setIsAddingSpheres(prev => !prev);  // Переключаем режим точек
+    setIsAddingSpheres(prev => !prev);
   };
-
+  
   const toggleAddTowers = () => {
-    if (isAddingSpheres) {
-      setIsAddingSpheres(false);  // Отключаем режим точек
+    if (isAddingSpheres || isAddingArea) {
+      setIsAddingSpheres(false);
+      setIsAddingArea(false);
     }
-    setIsAddingTowers(prev => !prev);  // Переключаем режим башен
+    setIsAddingTowers(prev => !prev);
+  };
+  
+  const toggleAddArea = () => {
+    if (isAddingSpheres || isAddingTowers) {
+      setIsAddingSpheres(false);
+      setIsAddingTowers(false);
+    }
+    setIsAddingArea(prev => !prev);
   };
   const cameraState = useRef({
-    center: [92.84690, 55.93961],
-    zoom: 10,
+    center: [92.82590, 56.16464],
+    zoom: 13,
     pitch: 60,
     bearing: 41,
   });
@@ -103,14 +120,20 @@ const MapContainer = ({ mapStyle }) => {
           setTowerCoords([e.lngLat.lng, e.lngLat.lat]);
           setShowHeightInputTower(true);
         },
+        addArea: () => {
+          console.log("Добавление площади облета");
+          setShowPolygonManager(true);
+        },
       };
     
-      // Определяем, какой action выполнить
-      const currentAction = isAddingSpheresRef.current ? 'addSphere' :
-                            isAddingTowersRef.current ? 'addTower' :
-                            null;
+      const currentAction = isAddingSpheresRef.current
+        ? 'addSphere'
+        : isAddingTowersRef.current
+        ? 'addTower'
+        : isAddingAreaRef.current
+        ? 'addArea'
+        : null;
     
-      // Выполняем action, если он определен
       if (currentAction && actions[currentAction]) {
         actions[currentAction]();
       }
@@ -262,7 +285,42 @@ const MapContainer = ({ mapStyle }) => {
     cursor: 'pointer',
   }}
 >
+
   {isAddingSpheres ? 'Режим добавления точек вкл' : 'Режим добавления точек выкл'}
+</button>
+<button
+  onClick={() => toggleAddArea()}
+  style={{
+    position: 'absolute',
+    top: '160px', // Расположим выше кнопки добавления точек
+    left: '10px',
+    zIndex: 1000,
+    padding: '10px 20px',
+    backgroundColor: isAddingArea ? 'red' : 'green',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  }}
+>
+  {isAddingArea ? 'Режим площади вкл' : 'Режим площади выкл'}
+</button>
+<button
+  className="start-flight-button"
+  style={{
+    position: 'absolute',
+    top: '300px',
+    left: '10px',
+    zIndex: 1000,
+    padding: '10px 20px',
+    backgroundColor: 'green',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+  }}
+  onClick={() => SphereManager.deleteRoute()} // Передаем функцию
+>
+  Удалить маршрут
 </button>
 <button 
   onClick={() => toggleAddTowers(prev => !prev)}
@@ -304,6 +362,15 @@ const MapContainer = ({ mapStyle }) => {
 
       {/* Highbar внизу карты */}
       <Highbar map={mapRef.current} routeCoordinates={routeCoordinates} />
+      {isAddingArea && showPolygonManager && (
+  <PolygonManager
+    map={mapRef.current}
+    onClose={() => {
+      setIsAddingArea(false); // Отключаем режим добавления области
+      setShowPolygonManager(false); // Закрываем менеджер полигона
+    }}
+  />
+)}
     </div>
     
   );

@@ -6,7 +6,8 @@ const PlaneManager = {
 
   async addPlaneToFirstSphere() {
     if (SphereManager.spheres.length === 0) {
-      console.error("No spheres available to add the plane model.");
+      
+      console.error("No spheres available to add the plane model.", );
       return;
     }
 

@@ -6,7 +6,7 @@ import Highbar from './components/Highbar'; // Импортируем Highbar
 import PlaneManager from './components/PlaneManager';
 
 const App = () => {
-  const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/streets-v12');
+  const [mapStyle, setMapStyle] = useState('mapbox://styles/mapbox/outdoors-v12');
 
   const handleStyleChange = (newStyle) => {
     setMapStyle(newStyle);
